@@ -15,7 +15,7 @@
 </head>
 
 <body>
-    <div style="width:100%">
+    <div style="height: 800px; width: 800px;">
         <canvas id="canvas"></canvas>
     </div>
     <button id="randomizeData">Randomize Data</button>
@@ -84,6 +84,21 @@
             window.myScatter = Chart.Bubble(ctx, {
                 data: scatterChartData,
                 options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{
+                            ticks: {
+                                min: 0,
+                                max: 127
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                min: 0,
+                                max: 127
+                            }
+                        }]
+                    },
                     title: {
                         display: true,
                         text: 'Chart.js Scatter Chart'
@@ -112,7 +127,7 @@
             var response = JSON.parse(xhttp.responseText);
             console.log(response);
             scatterChartData.datasets.forEach(function(dataset) {
-                dataset.data = response;
+                dataset.data = response
             });
             window.myScatter.update();
         });
