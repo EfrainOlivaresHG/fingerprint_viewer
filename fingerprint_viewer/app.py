@@ -8,7 +8,7 @@ conf = {
     "map_path_file": "word2vec/urls_62k_new_good_ones_0.wdc",
     "map_path_loc_file": "word2vec/urls_62k_new_good_ones_0.ldc",
     "model": "",
-    "text_corpus": "data/urls_62k_new_good_ones_0.tsv"
+    "text_corpus": "data/random_1000_urls.tsv"
 }
 
 word_dict = rv.load_word_location_dict_from_file(conf["map_path_file"])
@@ -27,6 +27,7 @@ def bubble():
 
 @app.route('/getretina', methods=['GET', 'POST'])
 def get_retina():
+    print "Looking for {}".format('lon') 
     text = ['aws']
     with open(conf["text_corpus"], 'r') as source:
         for line in source:
@@ -34,10 +35,10 @@ def get_retina():
             binary = cols[2].strip()
             url = cols[0].strip()
             text = [word for word in cols[1].strip().split()]
-            if url == "24-7plumbingservices.co.uk":
+            if url == "pennyful.in":
+                print "FOUND IT!"
                 break
 
-    print "WE ARE IN {}".format(str()) 
     tups = retina.fingerprint(text,0)
     data = []
     for tup in tups:
