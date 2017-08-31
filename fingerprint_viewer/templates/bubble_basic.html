@@ -5,6 +5,7 @@
     <title>Scatter Chart</title>
     <script src="static/Chart.bundle.js"></script>
     <script src="static/utils.js"></script>
+    <script src="static/vue.js"></script>
     <style>
     canvas {
         -moz-user-select: none;
@@ -15,12 +16,60 @@
 </head>
 
 <body>
+    <div id="selectdiv">
+        <select v-model="selected1">
+            <option disabled value="">Please select one</option>
+            {% for url in url_list %}
+                <option> {{ url  }} </option>
+            {% endfor %}
+        </select>
+        <br>
+        <select v-model="selected2">
+            <option disabled value="">Please select one</option>
+            {% for url in url_list %}
+                <option> {{ url  }} </option>
+            {% endfor %}
+        </select>
+        <br>
+        <span>Selected: {{ "{{ selected1 }} {{ selected2 }}" }}</span>
+        <button v-on:click="loadurl(selected1, selected2)">Load URL</button>
+    </div>
     <div style="height: 800px; width: 800px;">
         <canvas id="canvas"></canvas>
     </div>
     <button id="randomizeData">Randomize Data</button>
-    <button id="loadIt">Load It</button>
     <script>
+        new Vue({
+            el: '#selectdiv',
+            data: {
+                selected1: '0',
+                selected2: '0'
+            },
+            methods: {
+                loadurl: function(urlname1, urlname2) {
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.open("POST", "http://localhost:5000/getretina/" + urlname1 , false);
+                    xhttp.setRequestHeader("Content-type", "application/json");
+                    xhttp.send();
+                    var response = JSON.parse(xhttp.responseText);
+                    console.log(response);
+                    /*scatterChartData.datasets.forEach(function(dataset) {
+                        dataset.data = response
+                    });*/
+                    scatterChartData.datasets[0].data = response;
+                    scatterChartData.datasets[0].label = urlname1;
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.open("POST", "http://localhost:5000/getretina/" + urlname2 , false);
+                    xhttp.setRequestHeader("Content-type", "application/json");
+                    xhttp.send();
+                    var response = JSON.parse(xhttp.responseText);
+                    console.log(response);
+                    scatterChartData.datasets[1].data = response;
+                    scatterChartData.datasets[1].label = urlname2;
+                    window.myScatter.update();
+                }
+            }
+        })
         var color = Chart.helpers.color;
         var scatterChartData = {
             datasets: [{
@@ -28,24 +77,6 @@
                 borderColor: window.chartColors.red,
                 backgroundColor: color(window.chartColors.red).alpha(0.2).rgbString(),
                 data: [{
-                    x: randomScalingFactor(),
-                    y: randomScalingFactor(),
-                }, {
-                    x: randomScalingFactor(),
-                    y: randomScalingFactor(),
-                }, {
-                    x: randomScalingFactor(),
-                    y: randomScalingFactor(),
-                }, {
-                    x: randomScalingFactor(),
-                    y: randomScalingFactor(),
-                }, {
-                    x: randomScalingFactor(),
-                    y: randomScalingFactor(),
-                }, {
-                    x: randomScalingFactor(),
-                    y: randomScalingFactor(),
-                }, {
                     x: randomScalingFactor(),
                     y: randomScalingFactor(),
                 }]
@@ -56,25 +87,6 @@
                 data: [{
                     x: randomScalingFactor(),
                     y: randomScalingFactor(),
-                }, {
-                    x: randomScalingFactor(),
-                    y: randomScalingFactor(),
-                }, {
-                    x: randomScalingFactor(),
-                    y: randomScalingFactor(),
-                }, {
-                    x: randomScalingFactor(),
-                    y: randomScalingFactor(),
-                }, {
-                    x: randomScalingFactor(),
-                    y: randomScalingFactor(),
-                }, {
-                    x: randomScalingFactor(),
-                    y: randomScalingFactor(),
-                }, {
-                    x: randomScalingFactor(),
-                    y: randomScalingFactor(),
-                    r: 20
                 }]
             }]
         };
@@ -115,19 +127,6 @@
                         y: randomScalingFactor()
                     };
                 });
-            });
-            window.myScatter.update();
-        });
-
-        document.getElementById('loadIt').addEventListener('click', function() {
-            var xhttp = new XMLHttpRequest();
-            xhttp.open("POST", "http://localhost:5000/getretina", false);
-            xhttp.setRequestHeader("Content-type", "application/json");
-            xhttp.send();
-            var response = JSON.parse(xhttp.responseText);
-            console.log(response);
-            scatterChartData.datasets.forEach(function(dataset) {
-                dataset.data = response
             });
             window.myScatter.update();
         });
