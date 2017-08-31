@@ -6,6 +6,7 @@
     <script src="static/Chart.bundle.js"></script>
     <script src="static/utils.js"></script>
     <script src="static/vue.js"></script>
+    <script src="static/axios.js"></script>
     <style>
     canvas {
         -moz-user-select: none;
@@ -39,37 +40,6 @@
     </div>
     <button id="randomizeData">Randomize Data</button>
     <script>
-        new Vue({
-            el: '#selectdiv',
-            data: {
-                selected1: '0',
-                selected2: '0'
-            },
-            methods: {
-                loadurl: function(urlname1, urlname2) {
-                    var xhttp = new XMLHttpRequest();
-                    xhttp.open("POST", "http://localhost:5000/getretina/" + urlname1 , false);
-                    xhttp.setRequestHeader("Content-type", "application/json");
-                    xhttp.send();
-                    var response = JSON.parse(xhttp.responseText);
-                    console.log(response);
-                    /*scatterChartData.datasets.forEach(function(dataset) {
-                        dataset.data = response
-                    });*/
-                    scatterChartData.datasets[0].data = response;
-                    scatterChartData.datasets[0].label = urlname1;
-                    var xhttp = new XMLHttpRequest();
-                    xhttp.open("POST", "http://localhost:5000/getretina/" + urlname2 , false);
-                    xhttp.setRequestHeader("Content-type", "application/json");
-                    xhttp.send();
-                    var response = JSON.parse(xhttp.responseText);
-                    console.log(response);
-                    scatterChartData.datasets[1].data = response;
-                    scatterChartData.datasets[1].label = urlname2;
-                    window.myScatter.update();
-                }
-            }
-        })
         var color = Chart.helpers.color;
         var scatterChartData = {
             datasets: [{
@@ -90,6 +60,34 @@
                 }]
             }]
         };
+        new Vue({
+            el: '#selectdiv',
+            data: {
+                selected1: '0',
+                selected2: '0'
+            },
+            methods: {
+                loadurl: function(urlname1, urlname2) {
+                    this.get_data_set(urlname1, 0);
+                    this.get_data_set(urlname2, 1);
+                },
+                get_data_set: function(url, set) {
+                    axios.get("http://localhost:5000/getretina/" + url)
+                        .then(response => {
+                            scatterChartData.datasets[set].data = response.data;
+                            scatterChartData.datasets[set].label = url;
+                            console.log(response.data);
+                            window.myScatter.update();
+                        })
+                        .catch(error => {
+                            scatterChartData.datasets[set].data = [];
+                            scatterChartData.datasets[set].label = url;
+                            console.log("WHOA, there was an error");
+                        }) 
+                }
+            }
+        })
+
 
         window.onload = function() {
             var ctx = document.getElementById("canvas").getContext("2d");
