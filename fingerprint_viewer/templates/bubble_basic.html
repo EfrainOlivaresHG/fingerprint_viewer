@@ -36,7 +36,7 @@
         <button v-on:click="loadurl(selected1, selected2)">Load URL</button>
     </div>
     <div style="height: 800px; width: 800px;">
-        <canvas id="canvas"></canvas>
+        <canvas id="canvas" v-on="{ mousedown: get_start_coordinates, mouseup: get_box}"></canvas>
     </div>
     <button id="randomizeData">Randomize Data</button>
     <script>
@@ -84,9 +84,46 @@
                             scatterChartData.datasets[set].label = url;
                             console.log("WHOA, there was an error");
                         }) 
+                },
+
+           }
+        });
+
+        new Vue({
+            el: '#canvas',
+            data: {
+                startx: 0,
+                starty: 0,
+                endx: 0,
+                endy: 0
+            },
+            methods: { 
+                get_start_coordinates: function(event) {
+                    this.startx = event.pageX;
+                    this.starty = event.pageY;
+                },
+                get_box: function(event) {
+                    this.endx = event.pageX;
+                    this.endy = event.pageY;
+                    //console.log(this.startx);
+                    //console.log(this.starty);
+                    //console.log(this.endx);
+                    //console.log(this.endy);
+                    var slopex = 63/(800 - 30);
+                    var slopey = 63/(840 - 130);
+                    var interceptx = -30 * slopex;
+                    var intercepty = 130 * slopey;
+                    var fpx0 = slopex * this.startx + interceptx;
+                    var fpx1 = slopex * this.endx + interceptx;
+                    var fpy0 = 63 - slopey * this.starty + intercepty;
+                    var fpy1 = 63 - slopey * this.endy + intercepty;
+                    console.log(fpx0);
+                    console.log(fpy0);
+                    console.log(fpx1);
+                    console.log(fpy1);
                 }
             }
-        })
+        });
 
 
         window.onload = function() {
@@ -111,7 +148,7 @@
                     },
                     title: {
                         display: true,
-                        text: 'Chart.js Scatter Chart'
+                        text: 'Retina Fingerprint Viewer'
                     },
                 }
             });
