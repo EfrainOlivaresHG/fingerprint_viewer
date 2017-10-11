@@ -28,7 +28,7 @@ def fprint():
     return render_template('view_single_fingerprint.html',
         tab_title="TAB",
         page_title="Single Fingerprint View",
-        graph_size="64",
+        graph_size="128",
         graph_x_px="600",
         graph_y_px="680",
         url_list=url_list)

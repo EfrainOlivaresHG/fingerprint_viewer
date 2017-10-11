@@ -109,19 +109,10 @@
                     var slopey = -{{ graph_size }}/(bottom - top);
                     var interceptx = -left * slopex;
                     var intercepty = -bottom * slopey;
-                    console.log("intercept y " + intercepty);
                     var fpx0 = slopex * (this.startx - offsetLeft) + interceptx;
                     var fpy0 = slopey * (this.starty - offsetTop) + intercepty;
                     var fpx1 = slopex * (this.endx - offsetLeft) + interceptx;
                     var fpy1 = slopey * (this.endy - offsetTop) + intercepty;
-                    console.log(fpx0);
-                    console.log(fpy0);
-                    console.log(fpx1);
-                    console.log(fpy1);
-                    console.log(this.startx);
-                    console.log(this.starty);
-                    console.log(this.endx);
-                    console.log(this.endy);
                 }
             }
         });
@@ -141,13 +132,13 @@
                         xAxes: [{
                             ticks: {
                                 min: 0,
-                                max: 63
+                                max: {{ graph_size }} - 1 
                             }
                         }],
                         yAxes: [{
                             ticks: {
                                 min: 0,
-                                max: 63 
+                                max: {{ graph_size }} - 1 
                             }
                         }]
                     },
