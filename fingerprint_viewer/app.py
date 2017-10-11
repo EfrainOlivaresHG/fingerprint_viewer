@@ -21,6 +21,17 @@ def bubble():
         url_list = [line.split('\t')[0].strip() for line in source]
     return render_template('bubble_basic.html', url_list=url_list)
 
+@app.route('/fprint')
+def fprint():
+    with open(conf["text_corpus"], 'r') as source:
+        url_list = [line.split('\t')[0].strip() for line in source]
+    return render_template('view_single_fingerprint.html',
+        tab_title="TAB",
+        page_title="Single Fingerprint View",
+        url_list=url_list)
+
+
+
 @app.route('/getretina/<urlname>', methods=['GET', 'POST'])
 def get_retina(urlname):
     print "Looking for {}".format(urlname) 

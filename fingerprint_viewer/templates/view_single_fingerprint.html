@@ -1,58 +1,42 @@
 <!doctype html>
 <html>
-
 <head>
-    <title>Scatter Chart</title>
+    <title>{{ tab_title }}</title>
     <script src="static/Chart.bundle.js"></script>
     <script src="static/utils.js"></script>
     <script src="static/vue.js"></script>
     <script src="static/axios.js"></script>
     <style>
-    canvas {
-        -moz-user-select: none;
-        -webkit-user-select: none;
-        -ms-user-select: none;
-    }
+        canvas {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+        #container {
+            display: flex;
+        }
     </style>
 </head>
-
 <body>
-    <h2 id='h2'></h2>
-    <div id="selectdiv">
-        <select v-model="selected1" v-on="{ change: refresh }">
-            <option disabled value="">Please select one</option>
-            {% for url in url_list %}
-                <option> {{ url  }} </option>
-            {% endfor %}
-        </select>
-        <br>
-        <select v-model="selected2" v-on="{ change: refresh }">
-            <option disabled value="">Please select one</option>
-            {% for url in url_list %}
-                <option> {{ url  }} </option>
-            {% endfor %}
-        </select>
-        <br>
-        <span>Selected: {{ "{{ selected1 }} {{ selected2 }}" }}</span>
-        <!-- <button v-on:click="loadurl(selected1, selected2)">Load URL</button> -->
+    <div id="container">
+       <div id="selectdiv" v-on="{ change: refresh }">
+            <p>Select ID</p>
+            <select v-model="selected1" size='30'>
+                {% for url in url_list %}
+                    <option> {{ url  }} </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="height: 500px; width: 400px;">
+            <canvas id="canvas" v-on="{ mousedown: get_start_coordinates, mouseup: get_box}"></canvas>
+        </div>
     </div>
-    <div style="height: 400px; width: 400px;">
-        <canvas id="canvas" v-on="{ mousedown: get_start_coordinates, mouseup: get_box}"></canvas>
-    </div>
-    <button id="randomizeData">Randomize Data</button>
+ 
     <script>
         var color = Chart.helpers.color;
         var scatterChartData = {
             datasets: [{
-                label: "My First dataset",
-                borderColor: window.chartColors.red,
-                backgroundColor: color(window.chartColors.red).alpha(0.2).rgbString(),
-                data: [{
-                    x: randomScalingFactor(),
-                    y: randomScalingFactor(),
-                }]
-            }, {
-                label: "My Second dataset",
+                label: "",
                 borderColor: window.chartColors.blue,
                 backgroundColor: color(window.chartColors.blue).alpha(0.2).rgbString(),
                 data: [{
@@ -65,22 +49,21 @@
             el: '#selectdiv',
             data: {
                 selected1: '0',
-                selected2: '0'
             },
             methods: {
-                loadurl: function(urlname1, urlname2) {
+                loadurl: function(urlname1) {
+                    this.selected1 = urlname1;
                     this.get_data_set(urlname1, 0);
-                    this.get_data_set(urlname2, 1);
                 },
                 refresh: function() {
                     this.get_data_set(this.selected1, 0);
-                    this.get_data_set(this.selected2, 1);
                 },
                 get_data_set: function(url, set) {
                     axios.get("http://localhost:5000/getretina/" + url)
                         .then(response => {
                             scatterChartData.datasets[set].data = response.data;
                             scatterChartData.datasets[set].label = url;
+                            console.log(url);
                             console.log(response.data);
                             window.myScatter.update();
                         })
@@ -149,23 +132,11 @@
                     },
                     title: {
                         display: true,
-                        text: 'Retina Fingerprint Viewer'
+                        text: '{{ page_title }}' 
                     },
                 }
             });
         };
-
-        document.getElementById('randomizeData').addEventListener('click', function() {
-            scatterChartData.datasets.forEach(function(dataset) {
-                dataset.data = dataset.data.map(function() {
-                    return {
-                        x: randomScalingFactor(),
-                        y: randomScalingFactor()
-                    };
-                });
-            });
-            window.myScatter.update();
-        });
     </script>
 </body>
 
