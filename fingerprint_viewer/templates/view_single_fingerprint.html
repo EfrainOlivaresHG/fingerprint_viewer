@@ -78,6 +78,7 @@
                             //console.log(response.data);
                             window.myScatter.update();
                             theCanvas.get_word_set(url);
+                            theCanvas.draw_box();
                         })
                         .catch(error => {
                             scatterChartData.datasets[set].data = [];
@@ -99,7 +100,10 @@
                 fpx0: '',
                 fpx1: '',
                 fpy0: '',
-                fpy1: ''
+                fpy1: '',
+                offsetLeft: 0,
+                offsetTop: 0,
+                left: 0
             },
             methods: { 
                 get_start_coordinates: function(event) {
@@ -108,26 +112,27 @@
                 },
                 get_box: function(event) {
                     var metadata = window.myScatter.getDatasetMeta(0);
-                    var left = metadata.dataset._chart.chartArea.left;
+                    this.left = metadata.dataset._chart.chartArea.left;
                     var top = metadata.dataset._chart.chartArea.top;
                     var right = metadata.dataset._chart.chartArea.right;
                     var bottom = metadata.dataset._chart.chartArea.bottom;
                     var offsetHeight = metadata.dataset._chart.canvas.offsetHeight;
                     var offsetWidth = metadata.dataset._chart.canvas.offsetWidth;
-                    var offsetTop = metadata.dataset._chart.canvas.offsetTop;
-                    var offsetLeft = metadata.dataset._chart.canvas.offsetLeft;
+                    this.offsetTop = metadata.dataset._chart.canvas.offsetTop;
+                    this.offsetLeft = metadata.dataset._chart.canvas.offsetLeft;
 
                     this.endx = event.pageX;
                     this.endy = event.pageY;
-                    var slopex = {{ graph_size }}/(right - left);
+                    var slopex = {{ graph_size }}/(right - this.left);
                     var slopey = -{{ graph_size }}/(bottom - top);
-                    var interceptx = -left * slopex;
+                    var interceptx = -this.left * slopex;
                     var intercepty = -bottom * slopey;
-                    this.fpx0 = String(Math.round(slopex * (this.startx - offsetLeft) + interceptx));
-                    this.fpy0 = String(Math.round(slopey * (this.starty - offsetTop) + intercepty));
-                    this.fpx1 = String(Math.round(slopex * (this.endx - offsetLeft) + interceptx));
-                    this.fpy1 = String(Math.round(slopey * (this.endy - offsetTop) + intercepty));
+                    this.fpx0 = String(Math.round(slopex * (this.startx - this.offsetLeft) + interceptx));
+                    this.fpy0 = String(Math.round(slopey * (this.starty - this.offsetTop) + intercepty));
+                    this.fpx1 = String(Math.round(slopex * (this.endx - this.offsetLeft) + interceptx));
+                    this.fpy1 = String(Math.round(slopey * (this.endy - this.offsetTop) + intercepty));
                     this.get_word_set(selectid.selected1);
+                    this.draw_box();
                 },
                 get_word_set: function(url) {
                     var reqString = url
@@ -143,6 +148,15 @@
                         .catch(error => {
                             console.log("WHOA, there was an error");
                         }) 
+                },
+                draw_box: function() {
+                    var can = document.getElementById("canvas"), ctx = can.getContext('2d');
+                            var canvasStartX = this.endx - this.offsetLeft;
+                            var canvasStartY = this.endy - this.offsetTop;
+                            var canvasDeltaX = this.startx - this.endx;
+                            var canvasDeltaY = this.starty - this.endy;
+                            ctx.rect(canvasStartX,canvasStartY,canvasDeltaX, canvasDeltaY);
+                            ctx.stroke(); 
                 },
             }
         });
