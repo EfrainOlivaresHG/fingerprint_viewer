@@ -77,6 +77,7 @@
                             console.log(url);
                             //console.log(response.data);
                             window.myScatter.update();
+                            theCanvas.get_word_set(url);
                         })
                         .catch(error => {
                             scatterChartData.datasets[set].data = [];
@@ -88,13 +89,17 @@
            }
         });
 
-        new Vue({
+        var theCanvas = new Vue({
             el: '#canvas',
             data: {
                 startx: 0,
                 starty: 0,
                 endx: 0,
-                endy: 0
+                endy: 0,
+                fpx0: '',
+                fpx1: '',
+                fpy0: '',
+                fpy1: ''
             },
             methods: { 
                 get_start_coordinates: function(event) {
@@ -118,24 +123,18 @@
                     var slopey = -{{ graph_size }}/(bottom - top);
                     var interceptx = -left * slopex;
                     var intercepty = -bottom * slopey;
-                    var fpx0 = Math.round(slopex * (this.startx - offsetLeft) + interceptx);
-                    var fpy0 = Math.round(slopey * (this.starty - offsetTop) + intercepty);
-                    var fpx1 = Math.round(slopex * (this.endx - offsetLeft) + interceptx);
-                    var fpy1 = Math.round(slopey * (this.endy - offsetTop) + intercepty);
-                    this.get_word_set(
-                        selectid.selected1,
-                        String(fpx0),
-                        String(fpx1),
-                        String(fpy0),
-                        String(fpy1)
-                    );
+                    this.fpx0 = String(Math.round(slopex * (this.startx - offsetLeft) + interceptx));
+                    this.fpy0 = String(Math.round(slopey * (this.starty - offsetTop) + intercepty));
+                    this.fpx1 = String(Math.round(slopex * (this.endx - offsetLeft) + interceptx));
+                    this.fpy1 = String(Math.round(slopey * (this.endy - offsetTop) + intercepty));
+                    this.get_word_set(selectid.selected1);
                 },
-                get_word_set: function(url, x0, x1, y0, y1) {
+                get_word_set: function(url) {
                     var reqString = url
-                        + "&" + String(x0)
-                        + "&" + String(x1)
-                        + "&" + String(y0)
-                        + "&" + String(y1);
+                       + "&" + this.fpx0
+                       + "&" + this.fpx1
+                       + "&" + this.fpy0
+                       + "&" + this.fpy1;
                     axios.get("http://localhost:5000/getwords/" + reqString)
                         .then(response => {
                             textblock.items = response.data;
