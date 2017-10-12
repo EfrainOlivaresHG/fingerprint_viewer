@@ -21,7 +21,7 @@
     <div id="container">
        <div id="selectdiv" v-on="{ change: refresh }">
             <p>Select ID</p>
-            <select v-model="selected1" size='30'>
+            <select v-model="selected1" size='45'>
                 {% for url in url_list %}
                     <option> {{ url  }} </option>
                 {% endfor %}
@@ -29,6 +29,11 @@
         </div>
         <div style="height: {{ graph_y_px }}px; width: {{ graph_x_px }}px;">
             <canvas id="canvas" v-on="{ mousedown: get_start_coordinates, mouseup: get_box}"></canvas>
+        </div>
+        <div id="textwindow">
+            <li v-for='item in items'>
+                {{ '{{ item }}'}}
+            </li>
         </div>
     </div>
  
@@ -45,7 +50,13 @@
                 }]
             }]
         };
-        new Vue({
+        var textblock = new Vue({
+            el: '#textwindow',
+            data: {
+                items: {}
+            }
+        });
+        var selectid = new Vue({
             el: '#selectdiv',
             data: {
                 selected1: '0',
@@ -64,7 +75,7 @@
                             scatterChartData.datasets[set].data = response.data;
                             scatterChartData.datasets[set].label = url;
                             console.log(url);
-                            console.log(response.data);
+                            //console.log(response.data);
                             window.myScatter.update();
                         })
                         .catch(error => {
@@ -87,8 +98,6 @@
             },
             methods: { 
                 get_start_coordinates: function(event) {
-                    var item = window.myScatter.getDatasetMeta(0);
-                    console.log(item);
                     this.startx = event.pageX;
                     this.starty = event.pageY;
                 },
@@ -109,11 +118,33 @@
                     var slopey = -{{ graph_size }}/(bottom - top);
                     var interceptx = -left * slopex;
                     var intercepty = -bottom * slopey;
-                    var fpx0 = slopex * (this.startx - offsetLeft) + interceptx;
-                    var fpy0 = slopey * (this.starty - offsetTop) + intercepty;
-                    var fpx1 = slopex * (this.endx - offsetLeft) + interceptx;
-                    var fpy1 = slopey * (this.endy - offsetTop) + intercepty;
-                }
+                    var fpx0 = Math.round(slopex * (this.startx - offsetLeft) + interceptx);
+                    var fpy0 = Math.round(slopey * (this.starty - offsetTop) + intercepty);
+                    var fpx1 = Math.round(slopex * (this.endx - offsetLeft) + interceptx);
+                    var fpy1 = Math.round(slopey * (this.endy - offsetTop) + intercepty);
+                    this.get_word_set(
+                        selectid.selected1,
+                        String(fpx0),
+                        String(fpx1),
+                        String(fpy0),
+                        String(fpy1)
+                    );
+                },
+                get_word_set: function(url, x0, x1, y0, y1) {
+                    var reqString = url
+                        + "&" + String(x0)
+                        + "&" + String(x1)
+                        + "&" + String(y0)
+                        + "&" + String(y1);
+                    axios.get("http://localhost:5000/getwords/" + reqString)
+                        .then(response => {
+                            textblock.items = response.data;
+                            console.log(url);
+                        })
+                        .catch(error => {
+                            console.log("WHOA, there was an error");
+                        }) 
+                },
             }
         });
 

@@ -28,7 +28,7 @@ def fprint():
     return render_template('view_single_fingerprint.html',
         tab_title="TAB",
         page_title="Single Fingerprint View",
-        graph_size="128",
+        graph_size="64",
         graph_x_px="600",
         graph_y_px="680",
         url_list=url_list)
@@ -55,6 +55,39 @@ def get_retina(urlname):
         data.append({ "x": tup[0], "y": tup[1] })
     jdatas = json.dumps(data)
     return jdatas
+
+@app.route('/getwords/<urlandcoords>')
+def get_words(urlandcoords):
+    urlname, x0, x1, y0, y1 = urlandcoords.split('&')
+   
+    print "Looking for {}".format(urlname) 
+    print x0, x1, y0, y1
+    text = ['aws']
+    with open(conf["text_corpus"], 'r') as source:
+        for line in source:
+            cols = line.split('\t')
+            binary = cols[2].strip()
+            url = cols[0].strip()
+            text = [word for word in cols[1].strip().split()]
+            if url == urlname:
+                print "FOUND IT!"
+                break
+    data = {} 
+    for word in text:
+        try:
+            if word not in data.keys():
+                tup = retina.location(word)
+                if tup[0] >= int(x0) and tup[0] <= int(x1) and tup[1] >= int(y0) and tup[1] <= int(y1):
+                    data[word] = { "x": tup[0], "y": tup[1], "count": 1}
+            else:
+                data[word]["count"] += 1
+        except:
+            continue
+    datalist = [ {key: value } for key, value in data.iteritems()]
+
+    jdatas = json.dumps(datalist)
+    return jdatas
+
 
 if __name__ == '__main__':
   app.run('0.0.0.0', 8080)
