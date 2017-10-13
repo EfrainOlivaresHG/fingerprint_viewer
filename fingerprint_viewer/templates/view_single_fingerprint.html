@@ -15,6 +15,7 @@
         #container {
             display: flex;
         }
+        table { width: 400px; } /* Make table wider */ 
         td, th { border: 1px solid #CCC; } /* Add borders to cells */ 
     </style>
 </head>
@@ -22,6 +23,7 @@
     <div id="container">
        <div id="selectdiv" v-on="{ change: refresh }">
             <p>Select ID</p>
+            <p><a v-bind:href="full_url()" target="_blank">{{ '{{ selected1 }}' }}</a></p>
             <select v-model="selected1" size='45'>
                 {% for url in url_list %}
                     <option> {{ url  }} </option>
@@ -74,6 +76,9 @@
                 selected1: '0',
             },
             methods: {
+                full_url: function() {
+                    return "http://" + this.selected1;
+                },
                 loadurl: function(urlname1) {
                     this.selected1 = urlname1;
                     this.get_data_set(urlname1, 0);
@@ -86,8 +91,6 @@
                         .then(response => {
                             scatterChartData.datasets[set].data = response.data;
                             scatterChartData.datasets[set].label = url;
-                            console.log(url);
-                            //console.log(response.data);
                             window.myScatter.update();
                             theCanvas.get_word_set(url);
                             theCanvas.draw_box();
@@ -191,13 +194,15 @@
                         xAxes: [{
                             ticks: {
                                 min: 0,
-                                max: {{ graph_size }} - 1 
+                                max: {{ graph_size }} - 1,
+                                stepSize: 16 
                             }
                         }],
                         yAxes: [{
                             ticks: {
                                 min: 0,
-                                max: {{ graph_size }} - 1 
+                                max: {{ graph_size }} - 1,
+                                stepSize: 16 
                             }
                         }]
                     },
