@@ -15,6 +15,7 @@
         #container {
             display: flex;
         }
+        td, th { border: 1px solid #CCC; } /* Add borders to cells */ 
     </style>
 </head>
 <body>
@@ -31,9 +32,20 @@
             <canvas id="canvas" v-on="{ mousedown: get_start_coordinates, mouseup: get_box}"></canvas>
         </div>
         <div id="textwindow">
-            <li v-for='item in items'>
-                {{ '{{ item }}'}}
-            </li>
+            <table>
+            <tr>
+                <th>WORD</th>
+                <th>COUNT</th>
+                <th>X coord</th>
+                <th>Y coord</th>
+            </tr>
+            <tr v-for='item in items'>
+                <td>{{ '{{ item.word }}' }}</td>
+                <td>{{ '{{ item.value.count }}' }}</td>
+                <td>{{ '{{ item.value.x }}' }}</td>
+                <td>{{ '{{ item.value.y }}' }}</td>
+            </tr>
+            </table>
         </div>
     </div>
  
