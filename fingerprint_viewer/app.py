@@ -84,7 +84,7 @@ def get_words(urlandcoords):
                 data[word]["count"] += 1
         except:
             continue
-    datalist = [ {key: value } for key, value in data.iteritems()]
+    datalist = [ { "word": key, "value": value } for key, value in data.iteritems()]
 
     jdatas = json.dumps(datalist)
     return jdatas
