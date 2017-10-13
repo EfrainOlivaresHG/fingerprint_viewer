@@ -36,7 +36,7 @@
         <span>Selected: {{ "{{ selected1 }} {{ selected2 }}" }}</span>
         <!-- <button v-on:click="loadurl(selected1, selected2)">Load URL</button> -->
     </div>
-    <div style="height: 400px; width: 400px;">
+    <div style="height: 600px; width: 600px;">
         <canvas id="canvas" v-on="{ mousedown: get_start_coordinates, mouseup: get_box}"></canvas>
     </div>
     <button id="randomizeData">Randomize Data</button>
@@ -77,7 +77,7 @@
                     this.get_data_set(this.selected2, 1);
                 },
                 get_data_set: function(url, set) {
-                    axios.get("http://localhost:5000/getretina/" + url)
+                    axios.get("http://{{ host_port }}/getretina/" + url)
                         .then(response => {
                             scatterChartData.datasets[set].data = response.data;
                             scatterChartData.datasets[set].label = url;

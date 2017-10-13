@@ -87,7 +87,7 @@
                     this.get_data_set(this.selected1, 0);
                 },
                 get_data_set: function(url, set) {
-                    axios.get("http://localhost:5000/getretina/" + url)
+                    axios.get("http://{{ host_port }}/getretina/" + url)
                         .then(response => {
                             scatterChartData.datasets[set].data = response.data;
                             scatterChartData.datasets[set].label = url;
@@ -155,7 +155,7 @@
                        + "&" + this.fpx1
                        + "&" + this.fpy0
                        + "&" + this.fpy1;
-                    axios.get("http://localhost:5000/getwords/" + reqString)
+                    axios.get("http://{{ host_port }}/getwords/" + reqString)
                         .then(response => {
                             for (item in response.data) {
                                 console.log(response.data);
