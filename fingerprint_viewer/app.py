@@ -5,7 +5,8 @@ import json
 app = Flask(__name__)
 
 conf = {
-    "map_path_file": "word2vec/urls_62k_new_good_ones_0.wdc",
+    #"map_path_file": "word2vec/urls_62k_new_good_ones_0.wdc",
+    "map_path_file": "word2vec/language_key_map.wdc",
     "map_path_loc_file": "word2vec/urls_62k_new_good_ones_0.ldc",
     "model": "",
     "text_corpus": "data/random_1000_urls.tsv"

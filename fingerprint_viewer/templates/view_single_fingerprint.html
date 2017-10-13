@@ -142,6 +142,9 @@
                        + "&" + this.fpy1;
                     axios.get("http://localhost:5000/getwords/" + reqString)
                         .then(response => {
+                            for (item in response.data) {
+                                console.log(response.data);
+                            }
                             textblock.items = response.data;
                             console.log(url);
                         })
