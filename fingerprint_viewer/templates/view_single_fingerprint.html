@@ -15,8 +15,8 @@
         #container {
             display: flex;
         }
-        table { width: 400px; } /* Make table wider */ 
-        td, th { border: 1px solid #CCC; } /* Add borders to cells */ 
+        table { width: 400px; } /* Make table wider */
+        td, th { border: 1px solid #CCC; } /* Add borders to cells */
     </style>
 </head>
 <body>
@@ -24,7 +24,7 @@
        <div id="selectdiv" v-on="{ change: refresh }">
             <p>Select ID</p>
             <p><a v-bind:href="full_url()" target="_blank">{{ '{{ selected1 }}' }}</a></p>
-            <select v-model="selected1" size='45'>
+            <select v-model="selected1" size='35'>
                 {% for url in url_list %}
                     <option> {{ url  }} </option>
                 {% endfor %}
@@ -50,7 +50,7 @@
             </table>
         </div>
     </div>
- 
+
     <script>
         var color = Chart.helpers.color;
         var scatterChartData = {
@@ -99,7 +99,7 @@
                             scatterChartData.datasets[set].data = [];
                             scatterChartData.datasets[set].label = url;
                             console.log("WHOA, there was an error");
-                        }) 
+                        })
                 },
 
            }
@@ -120,7 +120,7 @@
                 offsetTop: 0,
                 left: 0
             },
-            methods: { 
+            methods: {
                 get_start_coordinates: function(event) {
                     this.startx = event.pageX;
                     this.starty = event.pageY;
@@ -165,7 +165,7 @@
                         })
                         .catch(error => {
                             console.log("WHOA, there was an error");
-                        }) 
+                        })
                 },
                 draw_box: function() {
                     var can = document.getElementById("canvas"), ctx = can.getContext('2d');
@@ -174,7 +174,7 @@
                             var canvasDeltaX = this.startx - this.endx;
                             var canvasDeltaY = this.starty - this.endy;
                             ctx.rect(canvasStartX,canvasStartY,canvasDeltaX, canvasDeltaY);
-                            ctx.stroke(); 
+                            ctx.stroke();
                 },
             }
         });
@@ -195,20 +195,20 @@
                             ticks: {
                                 min: 0,
                                 max: {{ graph_size }} - 1,
-                                stepSize: 16 
+                                stepSize: 16
                             }
                         }],
                         yAxes: [{
                             ticks: {
                                 min: 0,
                                 max: {{ graph_size }} - 1,
-                                stepSize: 16 
+                                stepSize: 16
                             }
                         }]
                     },
                     title: {
                         display: true,
-                        text: '{{ page_title }}' 
+                        text: '{{ page_title }}'
                     },
                 }
             });

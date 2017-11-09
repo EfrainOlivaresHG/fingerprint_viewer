@@ -31,7 +31,7 @@ def fprint():
         page_title="Single Fingerprint View",
         graph_size="64",
         graph_x_px="600",
-        graph_y_px="680",
+        graph_y_px="600",
         host_port=the_host_port,
         url_list=url_list)
 
@@ -39,7 +39,7 @@ def fprint():
 
 @app.route('/getretina/<urlname>', methods=['GET', 'POST'])
 def get_retina(urlname):
-    print "Looking for {}".format(urlname) 
+    print "Looking for {}".format(urlname)
     text = ['aws']
     with open(conf["text_corpus"], 'r') as source:
         for line in source:
@@ -61,8 +61,8 @@ def get_retina(urlname):
 @app.route('/getwords/<urlandcoords>')
 def get_words(urlandcoords):
     urlname, x0, x1, y0, y1 = urlandcoords.split('&')
-   
-    print "Looking for {}".format(urlname) 
+
+    print "Looking for {}".format(urlname)
     print x0, x1, y0, y1
     text = ['aws']
     with open(conf["text_corpus"], 'r') as source:
@@ -74,7 +74,7 @@ def get_words(urlandcoords):
             if url == urlname:
                 print "FOUND IT!"
                 break
-    data = {} 
+    data = {}
     for word in text:
         try:
             if word not in data.keys():

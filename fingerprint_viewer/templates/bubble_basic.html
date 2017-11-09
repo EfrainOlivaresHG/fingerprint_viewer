@@ -18,15 +18,15 @@
 
 <body>
     <h2 id='h2'></h2>
-    <div id="selectdiv">
-        <select v-model="selected1" v-on="{ change: refresh }">
+    <div id="selectdiv" v-on="{ change: refresh }">
+        <select v-model="selected1">
             <option disabled value="">Please select one</option>
             {% for url in url_list %}
                 <option> {{ url  }} </option>
             {% endfor %}
         </select>
         <br>
-        <select v-model="selected2" v-on="{ change: refresh }">
+        <select v-model="selected2">
             <option disabled value="">Please select one</option>
             {% for url in url_list %}
                 <option> {{ url  }} </option>
@@ -88,7 +88,7 @@
                             scatterChartData.datasets[set].data = [];
                             scatterChartData.datasets[set].label = url;
                             console.log("WHOA, there was an error");
-                        }) 
+                        })
                 },
 
            }
@@ -102,7 +102,7 @@
                 endx: 0,
                 endy: 0
             },
-            methods: { 
+            methods: {
                 get_start_coordinates: function(event) {
                     this.startx = event.pageX;
                     this.starty = event.pageY;
@@ -143,7 +143,7 @@
                         yAxes: [{
                             ticks: {
                                 min: 0,
-                                max: 63 
+                                max: 63
                             }
                         }]
                     },
