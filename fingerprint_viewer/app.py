@@ -2,6 +2,7 @@ from flask import Flask
 from flask import render_template
 import retina_viewer as rv
 import json
+import re
 app = Flask(__name__)
 
 conf = {
@@ -9,8 +10,12 @@ conf = {
     "map_path_file": "word2vec/language_key_map.wdc",
     "map_path_loc_file": "word2vec/urls_62k_new_good_ones_0.ldc",
     "model": "",
-    "text_corpus": "data/random_1000_urls.tsv"
+    "text_corpus": "data/combined_matches.tsv"
 }
+
+
+index = 0
+content = 3
 
 word_dict = rv.load_word_location_dict_from_file(conf["map_path_file"])
 word_vectors = rv.load_location_words_dict_from_file(conf["map_path_loc_file"])
@@ -19,13 +24,13 @@ the_host_port = "localhost:5000"
 @app.route('/')
 def bubble():
     with open(conf["text_corpus"],'r') as source:
-        url_list = [line.split('\t')[0].strip() for line in source]
+        url_list = [line.split('\t')[index].strip() for line in source]
     return render_template('bubble_basic.html', host_port=the_host_port, url_list=url_list)
 
 @app.route('/fprint')
 def fprint():
     with open(conf["text_corpus"], 'r') as source:
-        url_list = [line.split('\t')[0].strip() for line in source]
+        url_list = [line.split('\t')[index].strip() for line in source]
     return render_template('view_single_fingerprint.html',
         tab_title="TAB",
         page_title="Single Fingerprint View",
@@ -36,6 +41,10 @@ def fprint():
         url_list=url_list)
 
 
+def reformat_words(line_words):
+    # HACK because later on we trip on " when we try to generate arrays
+    line_words = line_words.replace('"', '')
+    return [word for word in re.split(r'(\W)', line_words) if not len(word.strip()) == 0]
 
 @app.route('/getretina/<urlname>', methods=['GET', 'POST'])
 def get_retina(urlname):
@@ -45,8 +54,9 @@ def get_retina(urlname):
         for line in source:
             cols = line.split('\t')
             binary = cols[2].strip()
-            url = cols[0].strip()
-            text = [word for word in cols[1].strip().split()]
+            url = cols[index].strip()
+
+            text = reformat_words(cols[content])
             if url == urlname:
                 print "FOUND IT!"
                 break
@@ -70,7 +80,7 @@ def get_words(urlandcoords):
             cols = line.split('\t')
             binary = cols[2].strip()
             url = cols[0].strip()
-            text = [word for word in cols[1].strip().split()]
+            text = [word for word in cols[3].strip().split()]
             if url == urlname:
                 print "FOUND IT!"
                 break
