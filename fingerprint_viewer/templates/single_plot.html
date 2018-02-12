@@ -12,16 +12,35 @@
             -webkit-user-select: none;
             -ms-user-select: none;
         }
-        #container {
-            display: flex;
+        .maincontainer {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        grid-template-areas:
+            "titl titl titl titl titl titl titl titl"
+            "lst plot plot plot plot plot word word";
+        }
+        .titlebar {
+            grid-area: titl;
+        }
+        .listcontainer {
+            grid-area: lst;
+        }
+        .plotcontainer {
+            grid-area: plot;
+        }
+        .wordcontainer {
+            grid-area: word;
         }
         table { width: 400px; } /* Make table wider */
         td, th { border: 1px solid #CCC; } /* Add borders to cells */
     </style>
 </head>
 <body>
-    <div id="container">
-       <div id="selectdiv" v-on="{ change: refresh }">
+    <div id="container" class='maincontainer'>
+        <div class='titlebar'>
+            <h1>{{ page_title }}</h1>
+        </div>
+       <div id="selectdiv" v-on="{ change: refresh }" class='listcontainer'>
             <p>Select ID</p>
             <p><a v-bind:href="full_url()" target="_blank">{{ '{{ selected1 }}' }}</a></p>
             <select v-model="selected1" size='35'>
@@ -30,10 +49,10 @@
                 {% endfor %}
             </select>
         </div>
-        <div style="height: {{ graph_y_px }}px; width: {{ graph_x_px }}px;">
+        <div style="height: {{ graph_y_px }}px; width: {{ graph_x_px }}px;" class='plotcontainer'>
             <canvas id="canvas" v-on="{ mousedown: get_start_coordinates, mouseup: get_box}"></canvas>
         </div>
-        <div id="textwindow">
+        <div id="textblock" class='wordcontainer'>
             <table>
             <tr>
                 <th>WORD</th>
@@ -49,7 +68,7 @@
             </tr>
             </table>
             <div><br><p>
-                '{{ content }}'
+                {{ '{{ content }}' }}
             </p></div>
         </div>
     </div>
@@ -68,10 +87,10 @@
             }]
         };
         var textblock = new Vue({
-            el: '#textwindow',
+            el: '#textblock',
             data: {
                 items: {},
-                content: ""
+                content: "",
             }
         });
         var selectid = new Vue({
@@ -91,12 +110,13 @@
                     this.get_data_set(this.selected1, 0);
                 },
                 get_data_set: function(url, set) {
-                    axios.get("http://{{ host_port }}/getretina/" + url)
+                    axios.get("http://{{ host_port }}/{{ callback }}/" + url)
                         .then(response => {
                             scatterChartData.datasets[set].data = response.data;
                             scatterChartData.datasets[set].label = url;
                             window.myScatter.update();
                             theCanvas.get_word_set(url);
+                            theCanvas.get_content(url);
                             theCanvas.draw_box();
                         })
                         .catch(error => {
@@ -171,15 +191,17 @@
                             console.log("WHOA, there was an error");
                         })
                 },
-                get_content: function(url, set) {
+                get_content: function(url) {
                     axios.get("http://{{ host_port }}/getcontent/" + url)
                         .then(response => {
+                            //log("just don't ask");
                             textblock.content = response.data["content"];
+                            console.log(response.data["content"]);
+                            //log(textblock.content);
                         })
                         .catch(error => {
-                            scatterChartData.datasets[set].data = [];
-                            scatterChartData.datasets[set].label = url;
-                            console.log("WHOA, there was an error");
+                            textblock.content = "no content";
+                            console.log("get_content, there was an error");
                         })
                 },
                 draw_box: function() {

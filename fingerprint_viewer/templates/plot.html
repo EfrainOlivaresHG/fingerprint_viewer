@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Scatter Chart</title>
+    <script src="static/Chart.bundle.js"></script>
+    <script src="static/utils.js"></script>
+    <script src="static/vue.js"></script>
+    <script src="static/axios.js"></script>
+    <style>
+    canvas {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+    </style>
+</head>
+
+<body>
+    <h2 id='h2'></h2>
+    <div id="selectdiv" v-on="{ change: refresh }">
+        <select v-model="selected1">
+            <option disabled value="">Please select one</option>
+            {% for url in url_list %}
+                <option> {{ url  }} </option>
+            {% endfor %}
+        </select>
+        <br>
+        <select v-model="selected2">
+            <option disabled value="">Please select one</option>
+            {% for url in url_list %}
+                <option> {{ url  }} </option>
+            {% endfor %}
+        </select>
+        <br>
+        <span>Selected: {{ "{{ selected1 }} {{ selected2 }}" }}</span>
+        <!-- <button v-on:click="loadurl(selected1, selected2)">Load URL</button> -->
+    </div>
+    <div style="height: 600px; width: 600px;">
+        <canvas id="canvas" v-on="{ mousedown: get_start_coordinates, mouseup: get_box}"></canvas>
+    </div>
+    <button id="randomizeData">Randomize Data</button>
+    <script>
+        var color = Chart.helpers.color;
+        var scatterChartData = {
+            datasets: [{
+                label: "My First dataset",
+                borderColor: window.chartColors.red,
+                backgroundColor: color(window.chartColors.red).alpha(0.2).rgbString(),
+                data: [{
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                }]
+            }, {
+                label: "My Second dataset",
+                borderColor: window.chartColors.blue,
+                backgroundColor: color(window.chartColors.blue).alpha(0.2).rgbString(),
+                data: [{
+                    x: randomScalingFactor(),
+                    y: randomScalingFactor(),
+                }]
+            }]
+        };
+        new Vue({
+            el: '#selectdiv',
+            data: {
+                selected1: '0',
+                selected2: '0'
+            },
+            methods: {
+                loadurl: function(urlname1, urlname2) {
+                    this.get_data_set(urlname1, 0);
+                    this.get_data_set(urlname2, 1);
+                },
+                refresh: function() {
+                    this.get_data_set(this.selected1, 0);
+                    this.get_data_set(this.selected2, 1);
+                },
+                get_data_set: function(url, set) {
+                    axios.get("http://{{ host_port }}/getretina/" + url)
+                        .then(response => {
+                            scatterChartData.datasets[set].data = response.data;
+                            scatterChartData.datasets[set].label = url;
+                            console.log(response.data);
+                            window.myScatter.update();
+                        })
+                        .catch(error => {
+                            scatterChartData.datasets[set].data = [];
+                            scatterChartData.datasets[set].label = url;
+                            console.log("WHOA, there was an error");
+                        })
+                },
+
+           }
+        });
+
+        new Vue({
+            el: '#canvas',
+            data: {
+                startx: 0,
+                starty: 0,
+                endx: 0,
+                endy: 0
+            },
+            methods: {
+                get_start_coordinates: function(event) {
+                    this.startx = event.pageX;
+                    this.starty = event.pageY;
+                },
+                get_box: function(event) {
+                    this.endx = event.pageX;
+                    this.endy = event.pageY;
+                    var slopex = 63/(800 - 30);
+                    var slopey = 63/(840 - 130);
+                    var interceptx = -30 * slopex;
+                    var intercepty = 130 * slopey;
+                    var fpx0 = slopex * this.startx + interceptx;
+                    var fpx1 = slopex * this.endx + interceptx;
+                    var fpy0 = 63 - slopey * this.starty + intercepty;
+                    var fpy1 = 63 - slopey * this.endy + intercepty;
+                    console.log(fpx0);
+                    console.log(fpy0);
+                    console.log(fpx1);
+                    console.log(fpy1);
+                }
+            }
+        });
+
+
+        window.onload = function() {
+            var ctx = document.getElementById("canvas").getContext("2d");
+            window.myScatter = Chart.Bubble(ctx, {
+                data: scatterChartData,
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{
+                            ticks: {
+                                min: 0,
+                                max: 63
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                min: 0,
+                                max: 63
+                            }
+                        }]
+                    },
+                    title: {
+                        display: true,
+                        text: 'Retina Fingerprint Viewer'
+                    },
+                }
+            });
+        };
+
+        document.getElementById('randomizeData').addEventListener('click', function() {
+            scatterChartData.datasets.forEach(function(dataset) {
+                dataset.data = dataset.data.map(function() {
+                    return {
+                        x: randomScalingFactor(),
+                        y: randomScalingFactor()
+                    };
+                });
+            });
+            window.myScatter.update();
+        });
+    </script>
+</body>
+
+</html>

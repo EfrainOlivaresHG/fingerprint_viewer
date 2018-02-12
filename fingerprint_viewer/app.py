@@ -31,14 +31,15 @@ def bubble():
 def fprint():
     with open(conf["text_corpus"], 'r') as source:
         url_list = [line.split('\t')[index].strip() for line in source]
-    return render_template('view_single_fingerprint.html',
-        tab_title="TAB",
+    return render_template('single_plot.html',
+        tab_title="Plot",
         page_title="Single Fingerprint View",
         graph_size="64",
         graph_x_px="600",
         graph_y_px="600",
         host_port=the_host_port,
-        url_list=url_list)
+        url_list=url_list,
+        callback="getretina")
 
 
 def reformat_words(line_words):
@@ -66,6 +67,7 @@ def get_retina(urlname):
     for tup in tups:
         data.append({ "x": tup[0], "y": tup[1] })
     jdatas = json.dumps(data)
+    print jdatas
     return jdatas
 
 @app.route('/getwords/<urlandcoords>')
@@ -79,10 +81,11 @@ def get_words(urlandcoords):
         for line in source:
             cols = line.split('\t')
             binary = cols[2].strip()
-            url = cols[0].strip()
-            text = [word for word in cols[3].strip().split()]
+            url = cols[index].strip()
+            text = reformat_words(cols[content])
             if url == urlname:
                 print "FOUND IT!"
+                #print text
                 break
     data = {}
     for word in text:
@@ -95,9 +98,30 @@ def get_words(urlandcoords):
                 data[word]["count"] += 1
         except:
             continue
-    datalist = [ { "word": key, "value": value } for key, value in data.iteritems()]
-
+    datalist = [{ "word": key, "value": value } for key, value in data.iteritems()]
+    #datalist.append({"content": cols[content]})
+    print cols[content]
     jdatas = json.dumps(datalist)
+    return jdatas
+
+@app.route('/getcontent/<urlname>', methods=['GET', 'POST'])
+def get_content(urlname):
+    print "Looking for {}".format(urlname)
+    dict_thecontent = {}
+    dict_thecontent["content"] = "no content"
+    with open(conf["text_corpus"], 'r') as source:
+        for line in source:
+            cols = line.split('\t')
+            url = cols[index].strip()
+            thecontent = cols[content]
+            text = reformat_words(cols[content])
+            if url == urlname:
+                print "FOUND content!"
+                dict_thecontent["content"] = thecontent.replace('"', '')
+                break
+
+    jdatas = json.dumps(dict_thecontent)
+    print "get_content: ", jdatas
     return jdatas
 
 
